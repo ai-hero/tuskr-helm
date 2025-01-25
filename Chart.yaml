@@ -1,0 +1,4 @@
+apiVersion: v2
+name: tuskr
+description: A Helm chart for the Tuskr controller (manages JobTemplate and Task CRDs)
+version: 0.1.0

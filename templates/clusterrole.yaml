@@ -1,0 +1,56 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tuskr-controller
+rules:
+  # 1) Access to tuskr.io CRDs (JobTemplates) at the cluster scope
+  - apiGroups: ["tuskr.io"]
+    resources:
+      - "jobtemplates"
+      - "jobtemplates/status"
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+
+  # 2) Access to Jobs in "batch" API group, to create or delete jobs in
+  #    whichever namespace the Task is in.
+  - apiGroups: ["batch"]
+    resources:
+      - "jobs"
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+
+  # 3) (Optional) Access to pods/pods logs in the core API group,
+  #    if your operator needs to read logs or manage pods.
+  - apiGroups: [""]
+    resources:
+      - "pods"
+      - "pods/log"
+    verbs: ["get", "list", "watch"]
+
+  # 4) Permissions to list/watch CRDs themselves in apiextensions.k8s.io
+  #    at the cluster scope, so Kopf won't fail trying to verify CRDs.
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources:
+      - "customresourcedefinitions"
+    verbs: ["get", "list", "watch"]
+
+  # 5) Permissions to manage Events in all namespaces
+  - apiGroups: [""]
+    resources:
+      - "events"
+    verbs: ["create", "patch", "update", "get", "list", "watch"]
+
+  # 6) **Additional**: Read access to Events and Jobs for monitoring
+  - apiGroups: [""]
+    resources:
+      - "events"
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["batch"]
+    resources:
+      - "jobs"
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: [""]
+    resources:
+      - "pods"
+      - "pods/log"
+    verbs: ["get", "list", "watch"]
