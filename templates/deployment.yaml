@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,12 +20,15 @@ spec:
       - name: tuskr-controller
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        # This assumes your code runs with: python -m kopf or python path
-        # If you prefer your main.py approach, adjust accordingly:
         command: ["python"]
         args: ["-m", "kopf", "run", "/home/user/app/tuskr_controller.py"]
         ports:
           - containerPort: 8080
+        env:
+        - name: REDIS_HOST
+          value: {{ .Release.Name }}-redis
+        - name: REDIS_PORT
+          value: "6379"
         resources:
           limits:
             cpu: 100m
@@ -32,3 +36,58 @@ spec:
           requests:
             cpu: 50m
             memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tuskr-controller
+  labels:
+    app: tuskr-controller
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: tuskr-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-redis
+  labels:
+    app: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.2-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-redis
+  labels:
+    app: redis
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
