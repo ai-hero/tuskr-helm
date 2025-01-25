@@ -1,0 +1,9 @@
+image:
+  repository: "aihero/tuskr"
+  tag: "ed9960f"
+  pullPolicy: "IfNotPresent"
+
+replicaCount: 1
+
+# Default namespace to which roles/rolebindings apply
+namespace: default

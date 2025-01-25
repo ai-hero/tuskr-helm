@@ -1,0 +1,52 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: jobtemplates.tuskr.io
+spec:
+  group: tuskr.io
+  names:
+    kind: JobTemplate
+    listKind: JobTemplateList
+    plural: jobtemplates
+    singular: jobtemplate
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                jobSpec:
+                  type: object
+                  # Embed the entire JobSpec schema from the official
+                  # k8s.io/api/batch/v1 definitions here:
+                  properties:
+                    template:
+                      type: object
+                      properties:
+                        spec:
+                          type: object
+                          properties:
+                            containers:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  image:
+                                    type: string
+                                  # ...
+                              required:
+                                - name
+                                - image
+                          # ...
+                    # ...
+                  # required, etc...
+              required:
+                - jobSpec
