@@ -10,6 +10,7 @@ spec:
     plural: jobtemplates
     singular: jobtemplate
   scope: Namespaced
+  preserveUnknownFields: false
   versions:
     - name: v1alpha1
       served: true
@@ -17,18 +18,29 @@ spec:
       schema:
         openAPIV3Schema:
           type: object
+          # Removed apiVersion, kind, and metadata from properties as they are handled by Kubernetes
           properties:
             spec:
               type: object
               properties:
                 jobSpec:
                   type: object
-                  # Embed the entire JobSpec schema from the official
-                  # k8s.io/api/batch/v1 definitions here:
                   properties:
                     template:
                       type: object
                       properties:
+                        metadata:
+                          type: object
+                          properties:
+                            labels:
+                              type: object
+                              additionalProperties:
+                                type: string
+                            annotations:
+                              type: object
+                              additionalProperties:
+                                type: string
+                          # Removed 'additionalProperties: false' to avoid conflict
                         spec:
                           type: object
                           properties:
@@ -39,14 +51,75 @@ spec:
                                 properties:
                                   name:
                                     type: string
+                                    description: "Name of the container"
                                   image:
                                     type: string
-                                  # ...
-                              required:
-                                - name
-                                - image
-                          # ...
-                    # ...
-                  # required, etc...
+                                    description: "Docker image name"
+                                  imagePullPolicy:
+                                    type: string
+                                    enum:
+                                      - Always
+                                      - IfNotPresent
+                                      - Never
+                                    description: "Image pull policy"
+                                  command:
+                                    type: array
+                                    items:
+                                      type: string
+                                    description: "Entrypoint array"
+                                  args:
+                                    type: array
+                                    items:
+                                      type: string
+                                    description: "Arguments to the entrypoint"
+                                  env:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+                                  ports:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        containerPort:
+                                          type: integer
+                                        protocol:
+                                          type: string
+                                          enum:
+                                            - TCP
+                                            - UDP
+                                            - SCTP
+                            restartPolicy:
+                              type: string
+                              enum:
+                                - Always
+                                - OnFailure
+                                - Never
+                            backoffLimit:
+                              type: integer
+                              minimum: 0
+                              description: "Number of retries before marking this job as failed."
+                            activeDeadlineSeconds:
+                              type: integer
+                              minimum: 0
+                              description: "Optional duration in seconds relative to the startTime that the job may be active before the system tries to terminate it."
+                            ttlSecondsAfterFinished:
+                              type: integer
+                              minimum: 0
+                              description: "Optional duration in seconds after the job finishes before it is eligible to be automatically deleted."
+                          required:
+                            - containers
+                            - restartPolicy
+                      required:
+                        - spec
+                  required:
+                    - template
               required:
                 - jobSpec
+          required:
+            - spec
