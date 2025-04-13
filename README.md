@@ -2,7 +2,7 @@
 Launch jobs on k8s with HTTP.
 
 1. Clone this repo
-2. `helm install tuskr . -n tuskr --create-namespace`
+2. `helm install tuskr . -n tuskr --create-namespace` or `helm upgrade tuskr . -n tuskr` to upgrade.
 3. Create a job template to the namespace you want.
 ```
 apiVersion: tuskr.io/v1alpha1

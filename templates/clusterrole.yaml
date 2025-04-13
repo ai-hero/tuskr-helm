@@ -54,3 +54,9 @@ rules:
       - "pods"
       - "pods/log"
     verbs: ["get", "list", "watch"]
+
+  # 7) Patch access to jobs/status in the batch API group
+  - apiGroups: ["batch"]
+    resources:
+      - "jobs/status"
+    verbs: ["patch"]
