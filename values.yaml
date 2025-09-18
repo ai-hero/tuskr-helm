@@ -1,6 +1,6 @@
 image:
   repository: "aihero/tuskr"
-  tag: "5af0eee"
+  tag: "0c59626"
   pullPolicy: "IfNotPresent"
 
 replicaCount: 1
